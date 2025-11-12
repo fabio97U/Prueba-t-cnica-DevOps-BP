@@ -1,9 +1,11 @@
 import sequelize from './shared/database/database.js'
 import { usersRouter } from "./users/router.js"
+
 import express from 'express'
 
 const app = express()
 const PORT = 8000
+process.env.PORT = PORT
 
 sequelize.sync({ force: true }).then(() => console.log('db is ready'))
 
