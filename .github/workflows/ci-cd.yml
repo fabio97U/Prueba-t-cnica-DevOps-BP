@@ -19,12 +19,12 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '18'
-      - name: Set workfile
-        run: |
-          cd "devsu-demo-devops-nodejs"
+
       - name: Install dependencies
+        working-directory: ./devsu-demo-devops-nodejs
         run: npm install
       - name: Run unit tests
+        working-directory: ./devsu-demo-devops-nodejs
         run: npm test
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -34,5 +34,6 @@ jobs:
           sonar-token: ${{ secrets.SONAR_TOKEN }}
           sonar-host-url: 'https://sonarcloud.io/'
       - name: Run coverage
+        working-directory: ./devsu-demo-devops-nodejs
         run: npm run test -- --coverage
       
