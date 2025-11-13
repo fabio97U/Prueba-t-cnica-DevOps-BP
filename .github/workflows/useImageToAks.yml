@@ -1,0 +1,22 @@
+name: ConsumerWorkflow
+on:
+  workflow_run:
+    workflows:
+      - "ContainerRegistry"
+    types:
+      - completed
+
+jobs:
+  use-image:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Set image var from triggering run
+        run: |
+          IMAGE="${{ github.event.workflow_run.head_sha }}"
+          echo "IMAGE_NAME=${{ secrets.ACR_LOGIN_SERVER }}/devsu-demo:${IMAGE}" >> $GITHUB_ENV
+
+      - name: Use image
+        run: |
+          echo "Using image: $IMAGE_NAME"
+          # update pod en AKS, pendiente
