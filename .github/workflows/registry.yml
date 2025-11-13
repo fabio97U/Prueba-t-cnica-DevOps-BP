@@ -9,9 +9,9 @@ jobs:
   sonarqube:
     name: ContainerRegistry
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./devsu-demo-devops-nodejs 
+    # defaults:
+    #   run:
+    #     working-directory: ./devsu-demo-devops-nodejs 
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout repository
@@ -37,7 +37,7 @@ jobs:
       - name: Build and push image to ACR
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./devsu-demo-devops-nodejs
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
