@@ -27,7 +27,7 @@ jobs:
         working-directory: ./devsu-demo-devops-nodejs
         run: npm test
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v6
         with:
           sonar-project-key: 'devsu-test-fabio'
           sonar-project-name: 'Devsu-test-fabio'
