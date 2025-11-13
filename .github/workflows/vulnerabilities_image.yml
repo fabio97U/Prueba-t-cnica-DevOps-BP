@@ -1,8 +1,8 @@
-name: vulnerabilitiesScan
+name: VulnerabilitiesScan
 on:
   workflow_run:
     workflows:
-      - "ConsumerWorkflow"
+      - "ContainerRegistry"
     types:
       - completed
 jobs:

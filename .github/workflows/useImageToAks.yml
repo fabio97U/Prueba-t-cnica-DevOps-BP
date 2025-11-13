@@ -2,7 +2,7 @@ name: ConsumerWorkflow
 on:
   workflow_run:
     workflows:
-      - "ContainerRegistry"
+      - "VulnerabilitiesScan"
     types:
       - completed
 
