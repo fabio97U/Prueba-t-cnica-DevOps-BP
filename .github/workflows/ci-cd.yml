@@ -26,13 +26,13 @@ jobs:
       - name: Run unit tests
         working-directory: ./devsu-demo-devops-nodejs
         run: npm test
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        with:
-          sonar-project-key: 'devsu-test-fabio'
-          sonar-project-name: 'Devsu-test-fabio'
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          sonar-host-url: 'https://sonarcloud.io/'
+      # - name: SonarCloud Scan
+      #   uses: SonarSource/sonarqube-scan-action@v6
+      #   with:
+      #     sonar-project-key: 'devsu-test-fabio'
+      #     sonar-project-name: 'Devsu-test-fabio'
+      #     sonar-token: ${{ secrets.SONAR_TOKEN }}
+      #     sonar-host-url: 'https://sonarcloud.io/'
       - name: Run coverage
         working-directory: ./devsu-demo-devops-nodejs
         run: npm run test -- --coverage
