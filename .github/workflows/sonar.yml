@@ -19,7 +19,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=fabio97u
+            -Dsonar.projectKey=fabio97U_Prueba-t-cnica-DevOps-BP
             -Dsonar.organization=fabio97u
             -Dsonar.sources=.
             -Dsonar.host.url=https://sonarcloud.io
