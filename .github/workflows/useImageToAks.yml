@@ -16,7 +16,17 @@ jobs:
           IMAGE="${{ github.event.workflow_run.head_sha }}"
           echo "IMAGE_NAME=${{ secrets.ACR_LOGIN_SERVER }}/devsu-demo:${IMAGE}" >> $GITHUB_ENV
 
+      - name: Login to Azure with username and password
+        run: |
+          az login -u ${{ secrets.AZURE_USERNAME }} -p ${{ secrets.AZURE_PASSWORD }}
+
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }} --overwrite-existing
+
       - name: Use image
         run: |
           echo "Using image: $IMAGE_NAME"
-          # update pod en AKS, pendiente
+          # Update pod en AKS
+          kubectl set image deployment/devsu-demo devsu-demo=$IMAGE_NAME --record
+          kubectl rollout status deployment/devsu-demo
