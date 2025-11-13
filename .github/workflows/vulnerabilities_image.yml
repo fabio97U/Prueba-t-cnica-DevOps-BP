@@ -44,17 +44,18 @@ jobs:
         run: |
           echo "Pushed: ${{ env.REGISTRY_LOGIN }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
 
-      - name: Install Trivy
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget ca-certificates
-          TRIVY_VER="0.41.2"
-          wget -q -O /tmp/trivy.deb https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VER}/trivy_${TRIVY_VER}_Linux-64bit.deb
-          sudo dpkg -i /tmp/trivy.deb
-
       - name: Pull image and scan for vulnerabilities (HIGH,CRITICAL)
         env:
           IMAGE_FULL: ${{ env.REGISTRY_LOGIN }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-        run: |
-          docker pull $IMAGE_FULL
-          trivy image --exit-code 1 --severity HIGH,CRITICAL $IMAGE_FULL
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_FULL }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
