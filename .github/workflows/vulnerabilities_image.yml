@@ -1,0 +1,61 @@
+name: vulnerabilitiesScan
+on:
+  workflow_run:
+    workflows:
+      - "SonarAnalysis"
+    types:
+      - completed
+jobs:
+  build-and-scan-acr:
+    name: Build · Push · Scan (ACR)
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set image and registry vars
+        run: |
+          echo "IMAGE_NAME=devsu-demo" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
+          echo "REGISTRY_LOGIN=${{ secrets.ACR_LOGIN_SERVER }}" >> $GITHUB_ENV
+
+      - name: Login to ACR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY_LOGIN }}
+          username: ${{ secrets.ACR_REGISTRY_USERNAME }}
+          password: ${{ secrets.ACR_REGISTRY_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push image to ACR
+        uses: docker/build-push-action@v4
+        with:
+          context: ./devsu-demo-devops-nodejs
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.REGISTRY_LOGIN }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.REGISTRY_LOGIN }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Verify pushed image
+        run: |
+          echo "Pushed: ${{ env.REGISTRY_LOGIN }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget ca-certificates
+          TRIVY_VER="0.41.2"
+          wget -q -O /tmp/trivy.deb https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VER}/trivy_${TRIVY_VER}_Linux-64bit.deb
+          sudo dpkg -i /tmp/trivy.deb
+
+      - name: Pull image and scan for vulnerabilities (HIGH,CRITICAL)
+        env:
+          IMAGE_FULL: ${{ env.REGISTRY_LOGIN }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        run: |
+          docker pull $IMAGE_FULL
+          trivy image --exit-code 1 --severity HIGH,CRITICAL $IMAGE_FULL

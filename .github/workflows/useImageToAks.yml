@@ -2,7 +2,7 @@ name: ConsumerWorkflow
 on:
   workflow_run:
     workflows:
-      - "ContainerRegistry"
+      - "vulnerabilitiesScan"
     types:
       - completed
 
@@ -15,18 +15,20 @@ jobs:
         run: |
           IMAGE="${{ github.event.workflow_run.head_sha }}"
           echo "IMAGE_NAME=${{ secrets.ACR_LOGIN_SERVER }}/devsu-demo:${IMAGE}" >> $GITHUB_ENV
+      - name: Login to Azure using service principal
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Login to Azure with username and password
-        run: |
-          az login -u ${{ secrets.AZURE_USERNAME }} -p ${{ secrets.AZURE_PASSWORD }}
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
 
-      - name: Get AKS credentials
+      - name: Render k8s manifest with image and apply
         run: |
-          az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }} --overwrite-existing
-
-      - name: Use image
-        run: |
-          echo "Using image: $IMAGE_NAME"
-          # Update pod en AKS
-          kubectl set image deployment/devsu-demo devsu-demo=$IMAGE_NAME --record
+          sudo apt-get update && sudo apt-get install -y gettext-base
+          envsubst < k8s/deployment.yml > deployment-render.yml
+          kubectl apply -f deployment-render.yml
           kubectl rollout status deployment/devsu-demo
