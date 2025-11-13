@@ -29,6 +29,6 @@ jobs:
       - name: Render k8s manifest with image and apply
         run: |
           sudo apt-get update && sudo apt-get install -y gettext-base
-          envsubst < k8s/deployment.yml > deployment-render.yml
-          kubectl apply -f deployment-render.yml
+          envsubst < k8s/deployment.yml > .github/workflows/deployment-render.yml
+          kubectl apply -f .github/workflows/deployment-render.yml
           kubectl rollout status deployment/devsu-demo
