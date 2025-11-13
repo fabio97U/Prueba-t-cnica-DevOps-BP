@@ -2,7 +2,7 @@ name: vulnerabilitiesScan
 on:
   workflow_run:
     workflows:
-      - "SonarAnalysis"
+      - "ContainerRegistry"
     types:
       - completed
 jobs:
