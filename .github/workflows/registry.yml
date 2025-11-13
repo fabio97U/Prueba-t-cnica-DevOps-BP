@@ -47,3 +47,14 @@ jobs:
       - name: Verify pushed image
         run: |
           echo "Image pushed to ${{ env.REGISTRY_LOGIN }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+      
+      - name: Save image name to file
+        run: |
+          echo "${{ env.REGISTRY_LOGIN }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" > image.txt
+
+      - name: Upload image-info artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-info
+          path: image.txt
+          retention-days: 7
