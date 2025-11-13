@@ -9,13 +9,15 @@ jobs:
   sonarqube:
     name: ContainerRegistry
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./devsu-demo-devops-nodejs 
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set image vars
-        working-directory: ./devsu-demo-devops-nodejs
         run: |
           echo "IMAGE_NAME=devsu-demo" >> $GITHUB_ENV
           echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
